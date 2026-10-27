@@ -49,16 +49,15 @@ Sueldo Money NOT NULL
 )
 --Creacion de la tabla de departamentos--
 --La tabla de departamentos solo cuenta con el nombre del departamento y su sueldo fijo--
---La decision de dejar los sueldos fijos vienen de entrevistar a varias personas que trabajaron en CasaLey--
+--La decision de dejar los sueldos fijos vienen de entrevistar a varias personas que trabajaron en CasaLe  y--
 
 CREATE TABLE Empleados (
 ID_empleado tinyint PRIMARY KEY IDENTITY (1,1) NOT NULL,
 Nombre varchar(100) NOT NULL,
 Numero_telefono char(10) NOT NULL,
-RFC char(13) NOT NULL UNIQUE,
+RFC char(13) NOT NULL UNIQUE CHECK (LEN(RFC) = 13 AND RFC NOT LIKE '%[^A-Z0-9]%'),
 ID_Departamento tinyint
 CONSTRAINT FK_Empleados_Departamenos FOREIGN KEY (ID_departamento) REFERENCES Departamentos(ID_departamento)
-CONSTRAINT Check_rfc CHECK (RFC NOT LIKE '%[A-Z0-9]%' AND LEN (RFC) = 13)
 )
 
 --Creacion de la tabla de Empleados--
@@ -113,38 +112,44 @@ Direccion varchar(200)
 --Sin embargo, existen las tarjetas de puntos, por lo que la informacion del cliente debe de poder guardarse--
 --No sera obligatorio que a cada venta se le asocie un cliente--
 
-CREATE TABLE Desgloses (
-ID_desglose int PRIMARY KEY IDENTITY (5000,1) NOT NULL,
-ID_catalogo smallint NOT NULL,
-Cantidad tinyint NOT NULL
+CREATE TABLE Venta (
+    ID_venta int PRIMARY KEY IDENTITY(3000,1) NOT NULL,
+    Monto_total money NOT NULL,
+    Fecha date NOT NULL,
+    ID_empleado tinyint NOT NULL,
+    ID_cliente int,
 
-CONSTRAINT FK_desglose_catalogo FOREIGN KEY (ID_catalogo) REFERENCES Catalogo(ID_catalogo)
+    CONSTRAINT FK_venta_empleado FOREIGN KEY (ID_empleado) REFERENCES Empleados(ID_empleado),
+
+    CONSTRAINT FK_venta_cliente FOREIGN KEY (ID_cliente) REFERENCES Clientes(ID_cliente)
+)
+
+
+--Creacion de la tabla de ventas--
+--Contiene la informacion general de cada venta--
+--Contiene 3 FK: uno con la tabla de desgloses, otro con la de empleados y un ultimo con la de cliente--
+--NO todos son obliatorios--
+
+CREATE TABLE Desgloses (
+    ID_desglose int PRIMARY KEY IDENTITY(5000,1) NOT NULL,
+    ID_venta int NOT NULL,
+    ID_catalogo smallint NOT NULL,
+    Cantidad int NOT NULL,
+    Precio_unitario money NOT NULL,
+
+    CONSTRAINT FK_desglose_venta FOREIGN KEY (ID_venta) REFERENCES Venta(ID_venta),
+
+    CONSTRAINT FK_desglose_catalogo FOREIGN KEY (ID_catalogo) REFERENCES Catalogo(ID_Catalogo),
+
+    CONSTRAINT CK_desglose_cantidad  CHECK (Cantidad > 0),
+
+    CONSTRAINT CK_desglose_precio CHECK (Precio_unitario >= 0)
 )
 
 --Creacion de la tabla de desgloses--
 --esta tabla contiene el desglose de cada compra--
 --referencia al producto con un constraint de fk y contiene la cantidad de dicho producto--
 --tal vez en una version posterio incluyamos precio unitario en esta tabla--
-
-
-CREATE TABLE Venta(
-ID_venta int PRIMARY KEY IDENTITY (3000,1) NOT NULL,
-ID_desglose int NOT NULL,
-Monto_total money NOT NULL,
-Fecha date NOT NULL,
-ID_empleado tinyint NOT NULL,
-ID_cliente int
-
-CONSTRAINT FK_venta_empleado FOREIGN KEY (ID_empleado) REFERENCES Empleados(ID_empleado),
-CONSTRAINT FK_venta_cliente FOREIGN KEY (ID_cliente) REFERENCES Clientes(ID_cliente),
-CONSTRAINT FK_venta_desglose FOREIGN KEY (ID_desglose) REFERENCES Desgloses(ID_desglose)
-
-)
-
---Creacion de la tabla de ventas--
---Contiene la informacion general de cada venta--
---Contiene 3 FK: uno con la tabla de desgloses, otro con la de empleados y un ultimo con la de cliente--
---NO todos son obliatorios--
 
 GO
 
