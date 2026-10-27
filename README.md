@@ -7,6 +7,6 @@ La primera actividad consta de un diseno de base de datos orientado a un superme
 
 --No estaba, el query de creacion fue modificado un par de veces mas--
 
--- "Acabado" a las 11:50 pm, 26 de octubre del 2026--
+--"Acabado" a las 11:50 pm, 26 de octubre del 2026--
 
 
